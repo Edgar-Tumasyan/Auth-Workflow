@@ -26,12 +26,10 @@ const register = async (req, res) => {
     verificationToken,
   });
 
-  res
-    .status(StatusCodes.CREATED)
-    .json({
-      msg: 'Success! Please check your email to verify account',
-      verificationToken: user.verificationToken,
-    });
+  res.status(StatusCodes.CREATED).json({
+    msg: 'Success! Please check your email to verify account',
+    verificationToken: user.verificationToken,
+  });
 };
 
 const login = async (req, res) => {
@@ -49,6 +47,11 @@ const login = async (req, res) => {
   if (!isPasswordCorrect) {
     throw new CustomError.UnauthenticatedError('Invalid Credentials');
   }
+
+  if (!user.isVerified) {
+    throw new CustomError.UnauthenticatedError('Please verify your email');
+  }
+
   const tokenUser = createTokenUser(user);
   attachCookiesToResponse({ res, user: tokenUser });
 
